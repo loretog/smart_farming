@@ -48,7 +48,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         $stmt = $conn->prepare('INSERT INTO plantnutrionneed (nutritionSetName, plantID, soilN, soilP, soilK, soilEC, soilPH, soilT, soilM, flowRate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->bind_param('siiiiidddd', $nutritionSetName, $plantID, $soilN, $soilP, $soilK, $soilEC, $soilPH, $soilT, $soilM, $flowRate);
+        if ($stmt === null) {
+            $errors[] = 'Invalid SQL statement. Please try again.';
+        } else {
+            // Debug: Show the final SQL statement
+            $finalSQL = getFinalSQL('INSERT INTO plantnutrionneed (nutritionSetName, plantID, soilN, soilP, soilK, soilEC, soilPH, soilT, soilM, flowRate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 'siiiiidddd', [$nutritionSetName, $plantID, $soilN, $soilP, $soilK, $soilEC, $soilPH, $soilT, $soilM, $flowRate]);
+            
+            try {
+                $stmt->bind_param('siiiiidddd', $nutritionSetName, $plantID, $soilN, $soilP, $soilK, $soilEC, $soilPH, $soilT, $soilM, $flowRate);
+            } catch (Exception $e) {
+                $errors[] = 'Failed to bind parameters: ' . $e->getMessage();
+                $errors[] = 'Debug SQL: ' . $finalSQL;
+            }
+        }
         if ($stmt->execute()) {
             $success = 'Nutrition needs added successfully! <a href="view_nutrition.php?plantID=' . $plantID . '">View nutrition details</a> or <a href="plants.php">view all plants</a>.';
         } else {
