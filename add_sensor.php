@@ -11,22 +11,21 @@ $errors = [];
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $plantName = trim($_POST['plantName'] ?? '');
-    $plantVariety = trim($_POST['plantVariety'] ?? '');
+    $sensorLocation = trim($_POST['sensorLocation'] ?? '');
 
     // Validate
-    if (!$plantName) {
-        $errors[] = 'Plant name is required.';
+    if (!$sensorLocation) {
+        $errors[] = 'Sensor location is required.';
     }
 
     if (!$errors) {
-        $stmt = $conn->prepare('INSERT INTO plantinfo (plantName, plantVariety) VALUES (?, ?)');
-        $stmt->bind_param('ss', $plantName, $plantVariety);
+        $stmt = $conn->prepare('INSERT INTO sensorinfo (sensorLocation) VALUES (?)');
+        $stmt->bind_param('s', $sensorLocation);
         if ($stmt->execute()) {
-            $plantID = $conn->insert_id; // Get the auto-generated ID
-            $success = 'Plant added successfully! <a href="add_nutrition.php?plantID=' . $plantID . '">Add nutrition needs</a> or <a href="plants.php">view all plants</a>.';
+            $sensorID = $conn->insert_id; // Get the auto-generated ID
+            $success = 'Sensor #' . $sensorID . ' added successfully! <a href="sensors.php">View all sensors</a> or <a href="add_sensor_data.php">add sensor data</a>.';
         } else {
-            $errors[] = 'Failed to add plant. Please try again.';
+            $errors[] = 'Failed to add sensor: ' . $conn->error . ' (Error Code: ' . $conn->errno . ')';
         }
         $stmt->close();
     }
@@ -37,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Plant - Smart Farming</title>
+    <title>Add Sensor - Smart Farming</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -74,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .page-header .icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+            background: linear-gradient(135deg, #2196F3, #1976D2);
             border-radius: 20px;
             display: flex;
             align-items: center;
@@ -87,7 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .page-header h1 {
             font-size: 2.2rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+            background: linear-gradient(135deg, #2196F3, #1976D2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -117,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #4CAF50, #45a049);
+            background: linear-gradient(90deg, #2196F3, #1976D2);
         }
 
         .error-message {
@@ -172,8 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .form-input:focus {
             outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
             background: white;
         }
 
@@ -183,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         .submit-btn {
             width: 100%;
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+            background: linear-gradient(135deg, #2196F3, #1976D2);
             color: white;
             border: none;
             padding: 1rem;
@@ -192,13 +191,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
             margin-bottom: 1.5rem;
         }
 
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4);
         }
 
         .nav-links {
@@ -245,10 +244,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Page Header -->
         <div class="page-header">
             <div class="icon">
-                <i class="fas fa-seedling"></i>
+                <i class="fas fa-microchip"></i>
             </div>
-            <h1>Add New Plant</h1>
-            <p>Register a new plant in your smart farming system</p>
+            <h1>Add New Sensor</h1>
+            <p>Deploy a new soil monitoring sensor</p>
         </div>
 
         <!-- Form Card -->
@@ -266,30 +265,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="add_plant.php">
+            <form method="post" action="add_sensor.php">
                 <div class="form-group">
-                    <label for="plantName">Plant Name *</label>
+                    <label for="sensorLocation">Sensor Location *</label>
                     <input type="text" 
-                           id="plantName"
-                           name="plantName" 
+                           id="sensorLocation"
+                           name="sensorLocation" 
                            class="form-input"
-                           placeholder="Enter plant name (e.g., Tomato, Corn, Wheat)" 
+                           placeholder="Enter sensor location (e.g., Field A, Greenhouse 1, Plot 3)" 
                            required 
-                           value="<?php echo htmlspecialchars($_POST['plantName'] ?? ''); ?>">
-                </div>
-
-                <div class="form-group">
-                    <label for="plantVariety">Plant Variety</label>
-                    <input type="text" 
-                           id="plantVariety"
-                           name="plantVariety" 
-                           class="form-input"
-                           placeholder="Enter variety (e.g., Beefsteak, Sweet Corn, Winter Wheat)" 
-                           value="<?php echo htmlspecialchars($_POST['plantVariety'] ?? ''); ?>">
+                           value="<?php echo htmlspecialchars($_POST['sensorLocation'] ?? ''); ?>">
                 </div>
 
                 <button type="submit" class="submit-btn">
-                    <i class="fas fa-plus"></i> Add Plant
+                    <i class="fas fa-plus"></i> Add Sensor
                 </button>
             </form>
 
@@ -297,11 +286,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <a href="dashboard.php">
                     <i class="fas fa-arrow-left"></i> Back to Dashboard
                 </a>
-                <a href="plants.php">
-                    <i class="fas fa-list"></i> View All Plants
+                <a href="sensors.php">
+                    <i class="fas fa-list"></i> View All Sensors
                 </a>
             </div>
         </div>
     </div>
 </body>
-</html> 
+</html>

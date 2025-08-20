@@ -16,7 +16,7 @@ $conn = new mysqli($servername, $username, $password, $dbname, $port);
 
 //$conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
-    die('Database connection failed: ' . $conn->connect_error);
+    die('Database connection failed: ' . $conn->connect_error . ' (Error Code: ' . $conn->connect_errno . ')');
 }
 
 /**

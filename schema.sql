@@ -32,12 +32,12 @@ CREATE TABLE users (
 );
 
 CREATE TABLE sensorinfo (
-    soilSensorID INT(15) PRIMARY KEY,
+    soilSensorID INT(15) AUTO_INCREMENT PRIMARY KEY,
     sensorLocation VARCHAR(50)
 );
 
 CREATE TABLE sensordata (
-    SensorDataID INT(15) PRIMARY KEY,
+    SensorDataID INT(15) AUTO_INCREMENT PRIMARY KEY,
     SoilSensorID INT(10),
     SoilN INT(10),
     SoilP INT(10),
