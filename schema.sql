@@ -30,3 +30,23 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP NULL
 );
+
+CREATE TABLE sensorinfo (
+    soilSensorID INT(15) PRIMARY KEY,
+    sensorLocation VARCHAR(50)
+);
+
+CREATE TABLE sensordata (
+    SensorDataID INT(15) PRIMARY KEY,
+    SoilSensorID INT(10),
+    SoilN INT(10),
+    SoilP INT(10),
+    SoilK INT(10),
+    SoilEC INT(10),
+    SoilPH FLOAT,
+    SoilT FLOAT,
+    SoilMois FLOAT,
+    FlowRate FLOAT,
+    DateTime TIMESTAMP,
+    FOREIGN KEY (SoilSensorID) REFERENCES sensorinfo(soilSensorID)
+);
