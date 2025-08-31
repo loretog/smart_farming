@@ -47,53 +47,15 @@ $response = [
 ];
 
 try {
-    $dataToLog = [];
-    $fileName = '';
+    // Get all incoming data (GET, POST, COOKIE)
+    $dataToLog = $_REQUEST;
     
-    // Handle different types of incoming data
-    switch ($_SERVER['REQUEST_METHOD']) {
-        case 'POST':
-            // Check if it's JSON data
-            $contentType = $_POST['content_type'] ?? $_SERVER['CONTENT_TYPE'] ?? '';
-            
-            if (strpos($contentType, 'application/json') !== false || 
-                strpos($contentType, 'text/json') !== false) {
-                // JSON data
-                $jsonData = file_get_contents('php://input');
-                $dataToLog = json_decode($jsonData, true);
-                
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    $response['data_received'] = 'JSON data parsed successfully';
-                    $fileName = 'json_sensor_data_' . date('H-i-s') . '.txt';
-                } else {
-                    $response['data_received'] = 'JSON parsing failed: ' . json_last_error_msg();
-                    $fileName = 'raw_sensor_data_' . date('H-i-s') . '.txt';
-                    $dataToLog = ['raw_content' => $jsonData, 'json_error' => json_last_error_msg()];
-                }
-            } else {
-                // Regular POST data
-                $dataToLog = $_POST;
-                $response['data_received'] = 'POST data received';
-                $fileName = 'post_sensor_data_' . date('H-i-s') . '.txt';
-            }
-            break;
-            
-        case 'GET':
-            // GET parameters
-            $dataToLog = $_GET;
-            $response['data_received'] = 'GET parameters received';
-            $fileName = 'get_sensor_data_' . date('H-i-s') . '.txt';
-            break;
-            
-        default:
-            $response['status'] = 'error';
-            $response['message'] = 'Unsupported request method';
-            $response['data_received'] = 'Method not allowed';
-            break;
-    }
-    
-    // If we have data to log and a filename, save it
-    if (!empty($dataToLog) && $fileName) {
+    if (!empty($dataToLog)) {
+        $response['data_received'] = 'Data received via ' . $_SERVER['REQUEST_METHOD'];
+        
+        // Generate filename based on timestamp
+        $fileName = 'sensor_data_' . date('H-i-s') . '.txt';
+        
         // Add metadata to the data
         $logData = [
             'timestamp' => date('Y-m-d H:i:s'),
@@ -125,6 +87,10 @@ try {
             $response['message'] = 'Failed to save data to file';
             $response['file_saved'] = 'Failed to save';
         }
+    } else {
+        $response['status'] = 'warning';
+        $response['message'] = 'No data received';
+        $response['data_received'] = 'Empty request';
     }
     
 } catch (Exception $e) {
