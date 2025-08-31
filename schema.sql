@@ -46,7 +46,7 @@ CREATE TABLE sensordata (
     SoilPH FLOAT,
     SoilT FLOAT,
     SoilMois FLOAT,
-    FlowRate FLOAT,
+    liquidVolume FLOAT,
     DateTime TIMESTAMP,
     FOREIGN KEY (SoilSensorID) REFERENCES sensorinfo(soilSensorID)
 );

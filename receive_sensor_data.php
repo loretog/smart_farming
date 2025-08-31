@@ -52,7 +52,7 @@ try {
         $soilPH = $dataToLog['SoilPH'] ?? null;
         $soilT = $dataToLog['SoilT'] ?? null;
         $soilMois = $dataToLog['SoilMois'] ?? null;
-        $flowRate = $dataToLog['liquidVolume'] ?? null; // Map liquidVolume to FlowRate
+        $liquidVolume = $dataToLog['liquidVolume'] ?? null;
         
         // Validate required fields
         if ($soilSensorID === null) {
@@ -60,13 +60,13 @@ try {
         }
         
         // Prepare and execute the INSERT statement
-        $stmt = $conn->prepare('INSERT INTO sensordata (SoilSensorID, SoilN, SoilP, SoilK, SoilEC, SoilPH, SoilT, SoilMois, FlowRate, DateTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
+        $stmt = $conn->prepare('INSERT INTO sensordata (SoilSensorID, SoilN, SoilP, SoilK, SoilEC, SoilPH, SoilT, SoilMois, liquidVolume, DateTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())');
         
         if ($stmt === null) {
             throw new Exception('Failed to prepare SQL statement: ' . $conn->error);
         }
         
-        // Bind parameters (note: SoilMois maps to SoilMois in DB, liquidVolume maps to FlowRate)
+        // Bind parameters
         $stmt->bind_param('iiiiidddd', 
             $soilSensorID, 
             $soilN, 
@@ -76,7 +76,7 @@ try {
             $soilPH, 
             $soilT, 
             $soilMois, 
-            $flowRate
+            $liquidVolume
         );
         
         // Execute the statement
